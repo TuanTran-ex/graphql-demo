@@ -1,0 +1,80 @@
+# GraphQl Schema for Query
+type Query {
+    allReviews(
+        pageSize: Int = 20
+            @doc(
+                description: "The maximum number of results to return at once. The default value is 20."
+            )
+        currentPage: Int = 1
+            @doc(
+                description: "The page of results to return. The default value is 1."
+            )
+    ): ListReviews
+        @doc(description: "Return all reviews")
+        @resolver(class: "TestModule\\GraphQL\\Model\\Resolver\\AllReviews")
+
+    listReviewOfProduct(
+        productId: Int
+        pageSize: Int = 20
+            @doc(
+                description: "The maximum number of results to return at once. The default value is 20."
+            )
+        currentPage: Int = 1
+            @doc(
+                description: "The page of results to return. The default value is 1."
+            )
+    ): ListReviews
+        @doc(description: "Return list review of product")
+        @resolver(
+            class: "TestModule\\GraphQL\\Model\\Resolver\\ListReviewOfProduct"
+        )
+}
+
+type ListReviews @doc(description: "Contain a list of reviews") {
+    items: [Review]! @doc(description: "List of reviews")
+    page_info: SearchResultPageInfo!
+        @doc(description: "Metadata for pagination rendering.")
+}
+
+type Review @doc(description: "Review info type") {
+    entity_id: Int! @doc(description: "Review ID")
+    title: String! @doc(description: "Title of review")
+    detail: String @doc(description: "Detail of review")
+    nickname: String! @doc(description: "Nickname of reviewer")
+    customer_id: Int @doc(description: "Customer ID")
+    email: String! @doc(description: "Email of reviewer")
+    created_at: String! @doc(description: "Created at")
+}
+
+# GraphQl Schema for Mutation
+type Mutation {
+    createReview(
+        input: CreateReviewInput! @doc(description: "An input object to create a review")
+    ) : CreateReviewOutput! @doc(description: "An output after created a review")
+    @resolver(class: "TestModule\\GraphQL\\Model\\Resolver\\CreateReview")
+}
+
+input CreateReviewInput
+    @doc(
+        description: "CreateReviewInput"
+    ) {
+    sku: String! @doc(description: "Product Sku")
+    nickname: String! @doc(description: "Nickname of reviewer")
+    email: String @doc(description: "Email of reviewer")
+    title: String! @doc(description: "Title of review")
+    details: String @doc(description: "Details of review")
+    ratings: [ReviewRatingInput!]! @doc(description: "Rating of review")
+}
+
+input ReviewRatingInput @doc(description: "Reviewer's rating for a single aspect of a review.") {
+    id: String! @doc(description: "An encoded rating ID.")
+    value_id: String! @doc(description: "An encoded rating value ID.")
+}
+
+type CreateReviewOutput
+    @doc(
+        description: "CreateReviewOutput"
+    ) {
+    success: Boolean! @doc(description: "True if the review was successfully created")
+    item: Review @doc(description: "Review created")
+}
